@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resaicar — Generador de Documentos</title>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#23B24B;--green-light:#e8f7ee;--green-dark:#1a8a39;
+  --dark:#1a1a1a;--mid:#555;--border:#e0e0e0;
+  --bg:#f7f7f5;--surface:#ffffff;--text:#1a1a1a;--text-sec:#666;
+}
+body{font-family:'Raleway',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app{max-width:860px;margin:0 auto;min-height:100vh;background:var(--surface);box-shadow:0 0 40px rgba(0,0,0,0.08)}
+.header{background:var(--dark);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo-wrap{display:flex;flex-direction:column}
+.logo-name{font-size:26px;font-weight:300;color:white;letter-spacing:-0.5px;line-height:1}
+.logo-tag{font-size:7px;letter-spacing:3px;color:#aaa;margin-top:3px}
+.logo-plus{color:var(--green)}
+.nav-tabs{display:flex;gap:6px}
+.nav-tab{background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Raleway',sans-serif;font-size:13px;font-weight:400;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+.nav-tab.active{background:var(--green);border-color:var(--green);color:white}
+.nav-tab:hover:not(.active){background:rgba(255,255,255,0.1);color:white}
+.content{padding:28px}
+.wizard-title{font-size:20px;font-weight:600;color:var(--text);margin-bottom:4px}
+.wizard-sub{font-size:13px;color:var(--text-sec);margin-bottom:20px}
+.progress-bar{height:6px;background:#eee;border-radius:8px;margin-bottom:20px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:8px;transition:width 0.4s}
+.step-indicator{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.step-dot{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text-sec)}
+.step-dot.done .dot,.step-dot.active .dot{background:var(--green);color:white}
+.step-dot.active .dot{box-shadow:0 0 0 3px rgba(35,178,75,0.2)}
+.dot{width:24px;height:24px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--mid);flex-shrink:0}
+.field-card{background:var(--surface);border:1px solid #e8e8e8;border-radius:12px;padding:20px 24px;margin-bottom:16px}
+.field-label{font-size:11px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+.field-hint{font-size:12px;color:var(--text-sec);margin-bottom:7px}
+label{display:block;font-size:12px;color:var(--text-sec);margin-bottom:5px;font-weight:600}
+input[type=text],input[type=date],input[type=number],select,textarea{
+  width:100%;padding:10px 14px;border:1px solid #d8d8d8;border-radius:8px;
+  font-family:'Raleway',sans-serif;font-size:14px;color:var(--text);background:#fafafa;
+  outline:none;transition:border 0.2s,box-shadow 0.2s
+}
+input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(35,178,75,0.1);background:white}
+textarea{resize:vertical;min-height:90px;line-height:1.6}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.form-grid .full{grid-column:1/-1}
+.btn-row{display:flex;gap:12px;margin-top:24px;align-items:center}
+.btn{padding:10px 22px;border-radius:8px;border:none;cursor:pointer;font-family:'Raleway',sans-serif;font-size:14px;font-weight:600;transition:all 0.2s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary{background:var(--green);color:white}
+.btn-primary:hover{background:var(--green-dark);transform:translateY(-1px)}
+.btn-secondary{background:transparent;color:var(--mid);border:1px solid #d0d0d0}
+.btn-secondary:hover{background:#f0f0f0}
+.btn-dark{background:var(--dark);color:white}
+.btn-dark:hover{background:#333}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:6px}
+.items-table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:13px}
+.items-table th{font-size:10px;font-weight:700;color:var(--text-sec);text-transform:uppercase;letter-spacing:0.06em;padding:8px 8px;border-bottom:2px solid #eee;text-align:left}
+.items-table td{padding:6px 4px;vertical-align:middle}
+.items-table input{font-size:13px;padding:7px 9px}
+.add-item-btn{display:flex;align-items:center;gap:8px;background:var(--green-light);color:var(--green-dark);border:1px dashed var(--green);border-radius:8px;padding:10px 16px;cursor:pointer;font-family:'Raleway',sans-serif;font-size:13px;font-weight:600;width:100%;justify-content:center;margin-top:6px;transition:background 0.2s}
+.add-item-btn:hover{background:#d0f0dc}
+.total-box{background:var(--green-light);border:1px solid #a8ddb8;border-radius:8px;padding:14px 18px;margin-top:14px;display:flex;justify-content:space-between;align-items:center}
+.total-label{font-size:14px;font-weight:600;color:var(--green-dark)}
+.total-value{font-size:22px;font-weight:700;color:var(--green-dark)}
+
+/* PDF preview */
+.preview-wrap{background:#e8e8e8;border-radius:12px;padding:20px;margin-top:4px}
+.pdf-doc{background:white;width:100%;max-width:720px;margin:0 auto;padding:32px 36px;font-family:'Raleway',sans-serif;color:#1a1a1a;font-size:12px;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
+.pdf-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;padding-bottom:16px;border-bottom:2.5px solid var(--green)}
+.pdf-logo-name{font-size:30px;font-weight:300;color:#1a1a1a;letter-spacing:-1px;line-height:1}
+.pdf-logo-dot{color:var(--green);font-size:12px}
+.pdf-logo-tag{font-size:7.5px;letter-spacing:3px;color:#777;margin-top:4px}
+.pdf-logo-plus{color:var(--green);font-size:9px;font-weight:700}
+.pdf-company-info{text-align:right;font-size:10px;color:#666;line-height:1.7}
+.pdf-meta{display:grid;grid-template-columns:1fr 1fr;margin-bottom:16px;border:1px solid #ddd;border-radius:4px;overflow:hidden}
+.pdf-meta-cell{padding:9px 14px;background:#fafafa;border-right:1px solid #ddd;border-bottom:1px solid #ddd}
+.pdf-meta-cell:nth-child(even){border-right:none}
+.pdf-meta-cell:nth-last-child(-n+2){border-bottom:none}
+.pdf-meta-label{font-size:8.5px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.07em}
+.pdf-meta-value{font-size:12px;font-weight:700;color:#1a1a1a;margin-top:2px}
+.pdf-client-box{background:#f0faf4;border:1px solid #b8e0c8;border-radius:4px;padding:12px 16px;margin-bottom:16px}
+.pdf-client-title{font-size:8.5px;font-weight:700;color:var(--green-dark);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+.pdf-client-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;font-size:11px}
+.pdf-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:11px}
+.pdf-table th{background:#1a1a1a;color:white;padding:8px 10px;text-align:left;font-weight:600;font-size:9.5px;text-transform:uppercase;letter-spacing:0.07em}
+.pdf-table td{padding:8px 10px;border-bottom:1px solid #eee;vertical-align:top;line-height:1.5}
+.pdf-table tr:nth-child(even) td{background:#fafafa}
+.pdf-cond-block{border:1px solid #ddd;border-radius:4px;overflow:hidden;margin-bottom:14px}
+.pdf-cond-title{background:#1a1a1a;color:white;padding:7px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em}
+.pdf-cond-row{display:flex;border-bottom:0.5px solid #eee}
+.pdf-cond-row:last-child{border-bottom:none}
+.pdf-cond-label{background:#f5f5f5;padding:7px 12px;font-weight:600;color:#666;width:220px;flex-shrink:0;font-size:10px}
+.pdf-cond-value{padding:7px 12px;color:#1a1a1a;font-size:10px}
+.pdf-notes{background:#f9f9f9;border:1px solid #ddd;border-radius:4px;padding:10px 14px;font-size:10px;color:#666;margin-bottom:14px;white-space:pre-line;line-height:1.6}
+.pdf-notes-title{font-weight:700;color:#444;margin-bottom:5px;font-size:9.5px;text-transform:uppercase;letter-spacing:0.07em}
+.pdf-footer{border-top:1px solid var(--green);padding-top:10px;display:flex;justify-content:space-between;font-size:10px;color:#666}
+.pdf-contact{margin-top:10px;padding:7px 12px;background:#f0faf4;border:1px solid #b8e0c8;border-radius:4px;font-size:10px;display:flex;justify-content:space-between;align-items:center}
+
+/* History */
+.history-list{display:flex;flex-direction:column;gap:10px}
+.history-item{background:white;border:1px solid #e8e8e8;border-radius:10px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;transition:box-shadow 0.2s}
+.history-item:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.hist-nr{font-size:15px;font-weight:700;color:var(--text)}
+.hist-client{font-size:13px;color:var(--text-sec);margin-top:3px}
+.hist-date{font-size:12px;color:#999;margin-top:2px}
+.hist-total{font-size:16px;font-weight:700;color:var(--green);margin:0 18px}
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-left:8px;background:var(--green-light);color:var(--green-dark)}
+.empty{text-align:center;padding:60px 24px;color:#aaa}
+.empty i{font-size:52px;display:block;margin-bottom:14px;opacity:0.3}
+
+/* Print styles */
+@media print {
+  body{background:white}
+  .app{max-width:none;box-shadow:none}
+  .header,.nav-tabs,.btn-row,.add-item-btn{display:none!important}
+  .content{padding:0}
+  .preview-wrap{background:white;padding:0}
+  .pdf-doc{box-shadow:none;padding:20px}
+}
+
+@media(max-width:600px){
+  .header{flex-direction:column;gap:12px;padding:14px 16px}
+  .nav-tabs{width:100%;justify-content:center}
+  .content{padding:16px}
+  .form-grid{grid-template-columns:1fr}
+  .form-grid .full{grid-column:1}
+  .pdf-client-grid{grid-template-columns:1fr}
+  .pdf-header{flex-direction:column;gap:10px}
+  .pdf-company-info{text-align:left}
+  .pdf-footer{flex-direction:column;gap:4px}
+  .pdf-contact{flex-direction:column;gap:4px;text-align:center}
+  .btn-row{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo-wrap">
+    <div class="logo-name">resaicar <span class="logo-plus">●</span></div>
+    <div class="logo-tag">CIENCIA <span class="logo-plus">+</span> TECNOLOGÍA</div>
+  </div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('nuevo')"><i class="ti ti-file-plus"></i> Nuevo</button>
+    <button class="nav-tab" onclick="showTab('historial')"><i class="ti ti-history"></i> Historial</button>
+    <button class="nav-tab" onclick="showTab('config')"><i class="ti ti-settings"></i> Mi empresa</button>
+  </div>
+</div>
+
+<!-- TAB: NUEVO -->
+<div class="content" id="tab-nuevo">
+  <div class="wizard-title">Nuevo presupuesto</div>
+  <div class="wizard-sub" id="step-sub">Paso 1 de 5</div>
+  <div class="progress-bar"><div class="progress-fill" id="prog" style="width:20%"></div></div>
+  <div class="step-indicator" id="step-dots"></div>
+  <div id="wizard-body"></div>
+</div>
+
+<!-- TAB: HISTORIAL -->
+<div class="content" id="tab-historial" style="display:none">
+  <div class="wizard-title" style="margin-bottom:20px">Historial de documentos</div>
+  <div id="history-container"></div>
+</div>
+
+<!-- TAB: CONFIG -->
+<div class="content" id="tab-config" style="display:none">
+  <div class="wizard-title">Datos de mi empresa</div>
+  <div class="wizard-sub">Esta información aparece en todos los documentos generados</div>
+
+  <div class="field-card">
+    <div class="field-label">Datos generales</div>
+    <div class="form-grid">
+      <div><label>Razón social</label><input type="text" id="cfg-nombre" value="RESAICAR S.R.L."></div>
+      <div><label>CUIT</label><input type="text" id="cfg-cuit" value="30-70859593-0"></div>
+      <div><label>Teléfono</label><input type="text" id="cfg-tel" value="(011) 7712-9111"></div>
+      <div><label>Sitio web</label><input type="text" id="cfg-web" value="www.resaicar.com.ar"></div>
+      <div class="full"><label>Domicilio</label><input type="text" id="cfg-dir" value="Canalejas 65, (1609) Boulogne, Pcia. de Buenos Aires"></div>
+      <div class="full"><label>Email</label><input type="text" id="cfg-email" value="resaicar@resaicar.com.ar"></div>
+    </div>
+  </div>
+
+  <div class="field-card">
+    <div class="field-label">Datos bancarios</div>
+    <div class="form-grid">
+      <div><label>Banco</label><input type="text" id="cfg-banco" value="Banco Comafi"></div>
+      <div><label>Titular</label><input type="text" id="cfg-titular" value="Resaicar S.R.L."></div>
+      <div><label>CBU</label><input type="text" id="cfg-cbu" value="2990112611200033620004"></div>
+      <div><label>N° cuenta corriente</label><input type="text" id="cfg-cuenta" value="1120-00336/2"></div>
+      <div><label>Alias</label><input type="text" id="cfg-alias" value="RESAICARCOMAFI"></div>
+    </div>
+  </div>
+
+  <div class="field-card">
+    <div class="field-label">Contacto comercial</div>
+    <div class="form-grid">
+      <div><label>Nombre</label><input type="text" id="cfg-cnt-nombre" value="Diego Caputo"></div>
+      <div><label>Departamento</label><input type="text" id="cfg-cnt-dpto" value="Dpto. Técnico &amp; Comercial"></div>
+      <div class="full"><label>Email de contacto</label><input type="text" id="cfg-cnt-email" value="diegocaputo@resaicar.com.ar"></div>
+    </div>
+  </div>
+
+  <div class="field-card">
+    <div class="field-label">Notas y condiciones por defecto</div>
+    <div style="margin-top:8px">
+      <textarea id="cfg-notas" rows="8">- Moneda extranjera: el pago se recibirá en pesos moneda nacional equivalente al importe cotizado en moneda extranjera, utilizando para su conversión el tipo de cambio vendedor establecido por el banco nación argentino al día anterior de su efectividad.
+- Plazos: son días corridos.
+- Servicios de reparación: los valores expresados en el presente presupuesto no contemplan daños ocultos y/o roturas no detectables, los mismos pueden variar al momento del desarme o reparación.
+- Servicios de calibración: el presupuesto y el plazo de realización están sujetos a la revisión técnica previa del instrumento a calibrar por parte de nuestro personal especializado. No incluye cargos por ajuste mayores o reparaciones si fueran necesarios.
+- Orden de compra: de ser aceptado el presente presupuesto, es requisito indispensable el recibir una orden de compra o una confirmación válida por correo que refleje los términos indicados.
+- Documento no válido como factura.
+- Precios válidos por adjudicación total.</textarea>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="saveConfig()"><i class="ti ti-device-floppy"></i> Guardar cambios</button>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+const STEPS=[
+  {label:'Documento'},
+  {label:'Cliente'},
+  {label:'Ítems'},
+  {label:'Condiciones'},
+  {label:'Vista previa'}
+];
+
+let step=0;
+let history=JSON.parse(localStorage.getItem('resaicar_history')||'[]');
+
+function defaultDoc(){
+  const nr=history.length>0?autoNr():getNextNr();
+  return{
+    fecha:new Date().toISOString().split('T')[0],
+    numero:nr,referencia:'',
+    cliente:'',usuario:'',puesto:'',cuit_cli:'',sector:'',domicilio_cli:'',
+    items:[{desc:'',cant:'1',precio:'',total:''}],
+    moneda:'USD',forma_pago:'ANTICIPADO 100%',
+    entrega:'Retiro por nuestro domicilio',
+    fecha_entrega:'Dentro de los 15 días',validez:'15 días'
+  };
+}
+
+function getNextNr(){
+  const y=new Date().getFullYear();
+  if(!history.length) return `N0001-${y}`;
+  const nums=history.map(h=>{const m=h.numero.match(/N(\d+)/);return m?parseInt(m[1]):0;});
+  const next=Math.max(...nums)+1;
+  return `N${String(next).padStart(4,'0')}-${y}`;
+}
+
+function autoNr(){return getNextNr();}
+
+let doc=defaultDoc();
+
+let cfg=JSON.parse(localStorage.getItem('resaicar_cfg')||'null')||{
+  nombre:'RESAICAR S.R.L.',cuit:'30-70859593-0',tel:'(011) 7712-9111',web:'www.resaicar.com.ar',
+  dir:'Canalejas 65, (1609) Boulogne, Pcia. de Buenos Aires',email:'resaicar@resaicar.com.ar',
+  banco:'Banco Comafi',titular:'Resaicar S.R.L.',cbu:'2990112611200033620004',cuenta:'1120-00336/2',alias:'RESAICARCOMAFI',
+  cnt_nombre:'Diego Caputo',cnt_dpto:'Dpto. Técnico & Comercial',cnt_email:'diegocaputo@resaicar.com.ar',
+  notas:`- Moneda extranjera: el pago se recibirá en pesos moneda nacional equivalente al importe cotizado en moneda extranjera, utilizando para su conversión el tipo de cambio vendedor establecido por el banco nación argentino al día anterior de su efectividad.\n- Plazos: son días corridos.\n- Servicios de reparación: los valores expresados en el presente presupuesto no contemplan daños ocultos y/o roturas no detectables, los mismos pueden variar al momento del desarme o reparación.\n- Servicios de calibración: el presupuesto y el plazo de realización están sujetos a la revisión técnica previa del instrumento a calibrar. No incluye cargos por ajuste mayores o reparaciones si fueran necesarios.\n- Orden de compra: de ser aceptado el presente presupuesto, es requisito indispensable el recibir una orden de compra o una confirmación válida por correo.\n- Documento no válido como factura.\n- Precios válidos por adjudicación total.`
+};
+
+function showTab(t){
+  ['nuevo','historial','config'].forEach(id=>{
+    document.getElementById('tab-'+id).style.display=id===t?'block':'none';
+  });
+  document.querySelectorAll('.nav-tab').forEach((b,i)=>{
+    b.classList.toggle('active',['nuevo','historial','config'][i]===t);
+  });
+  if(t==='historial') renderHistory();
+  if(t==='config') loadConfigForm();
+}
+
+function loadConfigForm(){
+  ['nombre','cuit','tel','web','dir','email','banco','titular','cbu','cuenta','alias'].forEach(k=>{
+    const el=document.getElementById('cfg-'+k);
+    if(el) el.value=cfg[k]||'';
+  });
+  document.getElementById('cfg-cnt-nombre').value=cfg.cnt_nombre||'';
+  document.getElementById('cfg-cnt-dpto').value=cfg.cnt_dpto||'';
+  document.getElementById('cfg-cnt-email').value=cfg.cnt_email||'';
+  document.getElementById('cfg-notas').value=cfg.notas||'';
+}
+
+function saveConfig(){
+  ['nombre','cuit','tel','web','dir','email','banco','titular','cbu','cuenta','alias'].forEach(k=>{
+    const el=document.getElementById('cfg-'+k);
+    if(el) cfg[k]=el.value;
+  });
+  cfg.cnt_nombre=document.getElementById('cfg-cnt-nombre').value;
+  cfg.cnt_dpto=document.getElementById('cfg-cnt-dpto').value;
+  cfg.cnt_email=document.getElementById('cfg-cnt-email').value;
+  cfg.notas=document.getElementById('cfg-notas').value;
+  localStorage.setItem('resaicar_cfg',JSON.stringify(cfg));
+  alert('✓ Datos guardados correctamente');
+}
+
+function calcTotal(){
+  let t=0;
+  doc.items.forEach(it=>{
+    const v=parseFloat(it.precio)||0;
+    const c=parseFloat(it.cant)||0;
+    it.total=(v*c).toFixed(2);
+    t+=v*c;
+  });
+  return t;
+}
+
+function numToWords(n){
+  n=Math.floor(n);
+  const u=['','UNO','DOS','TRES','CUATRO','CINCO','SEIS','SIETE','OCHO','NUEVE','DIEZ','ONCE','DOCE','TRECE','CATORCE','QUINCE','DIECISÉIS','DIECISIETE','DIECIOCHO','DIECINUEVE'];
+  const d=['','','VEINTE','TREINTA','CUARENTA','CINCUENTA','SESENTA','SETENTA','OCHENTA','NOVENTA'];
+  const h=['','CIEN','DOSCIENTOS','TRESCIENTOS','CUATROCIENTOS','QUINIENTOS','SEISCIENTOS','SETECIENTOS','OCHOCIENTOS','NOVECIENTOS'];
+  if(n===0) return 'CERO';
+  if(n<20) return u[n];
+  if(n<100) return d[Math.floor(n/10)]+(n%10?' Y '+u[n%10]:'');
+  if(n<1000) return (n===100?'CIEN':h[Math.floor(n/100)])+(n%100?' '+numToWords(n%100):'');
+  if(n<1000000){const m=Math.floor(n/1000);return(m===1?'MIL':numToWords(m)+' MIL')+(n%1000?' '+numToWords(n%1000):'');}
+  return n.toString();
+}
+
+function fmtDate(d){
+  if(!d) return '';
+  return new Date(d+'T12:00:00').toLocaleDateString('es-AR');
+}
+
+function renderDots(){
+  document.getElementById('step-dots').innerHTML=STEPS.map((s,i)=>`
+    <div class="step-dot ${i<step?'done':i===step?'active':''}">
+      <div class="dot">${i<step?'✓':i+1}</div>
+      <span>${s.label}</span>
+    </div>`).join('');
+  document.getElementById('prog').style.width=((step+1)/STEPS.length*100)+'%';
+  document.getElementById('step-sub').textContent=`Paso ${step+1} de ${STEPS.length} — ${STEPS[step].label}`;
+}
+
+function renderStep(){
+  renderDots();
+  const b=document.getElementById('wizard-body');
+
+  if(step===0){
+    b.innerHTML=`
+      <div class="field-card">
+        <div class="field-label">Datos del documento</div>
+        <div class="form-grid">
+          <div><label>Fecha</label><input type="date" id="f-fecha" value="${doc.fecha}"></div>
+          <div><label>N° de presupuesto</label><input type="text" id="f-numero" value="${doc.numero}" placeholder="N0001-2026"></div>
+          <div class="full"><label>Referencia / Asunto</label><input type="text" id="f-ref" value="${doc.referencia}" placeholder="Ej: Insumos Laboratorio"></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goNext()">Siguiente <i class="ti ti-arrow-right"></i></button>
+      </div>`;
+  }
+  else if(step===1){
+    b.innerHTML=`
+      <div class="field-card">
+        <div class="field-label">Datos del cliente</div>
+        <div class="form-grid">
+          <div class="full"><label>Razón social / Nombre del cliente</label><input type="text" id="f-cliente" value="${doc.cliente}" placeholder="Ej: ACME S.A."></div>
+          <div><label>Usuario / Contacto</label><input type="text" id="f-usuario" value="${doc.usuario}" placeholder="Nombre y apellido"></div>
+          <div><label>Puesto / Cargo</label><input type="text" id="f-puesto" value="${doc.puesto}" placeholder="Ej: Jefe de Calidad"></div>
+          <div><label>CUIT del cliente</label><input type="text" id="f-cuit" value="${doc.cuit_cli}" placeholder="30-00000000-0"></div>
+          <div><label>Sector / Área</label><input type="text" id="f-sector" value="${doc.sector}" placeholder="Ej: Laboratorio Central"></div>
+          <div class="full"><label>Domicilio del cliente</label><input type="text" id="f-dom" value="${doc.domicilio_cli}" placeholder="Calle, localidad, provincia"></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goPrev()"><i class="ti ti-arrow-left"></i> Anterior</button>
+        <button class="btn btn-primary" onclick="goNext()">Siguiente <i class="ti ti-arrow-right"></i></button>
+      </div>`;
+  }
+  else if(step===2){
+    renderItemsStep(b);
+  }
+  else if(step===3){
+    b.innerHTML=`
+      <div class="field-card">
+        <div class="field-label">Condiciones comerciales</div>
+        <div class="form-grid">
+          <div><label>Moneda</label>
+            <select id="f-moneda">
+              <option ${doc.moneda==='USD'?'selected':''}>USD</option>
+              <option ${doc.moneda==='ARS'?'selected':''}>ARS</option>
+              <option ${doc.moneda==='EUR'?'selected':''}>EUR</option>
+            </select>
+          </div>
+          <div><label>Forma de pago</label><input type="text" id="f-fpago" value="${doc.forma_pago}" placeholder="Ej: ANTICIPADO 100%"></div>
+          <div class="full"><label>Lugar de entrega / Realización del servicio</label><input type="text" id="f-entrega" value="${doc.entrega}"></div>
+          <div><label>Plazo de entrega</label><input type="text" id="f-fentrega" value="${doc.fecha_entrega}" placeholder="Ej: Dentro de los 15 días"></div>
+          <div><label>Validez de la oferta</label><input type="text" id="f-validez" value="${doc.validez}" placeholder="Ej: 15 días"></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="goPrev()"><i class="ti ti-arrow-left"></i> Anterior</button>
+        <button class="btn btn-primary" onclick="goNext()">Ver vista previa <i class="ti ti-eye"></i></button>
+      </div>`;
+  }
+  else if(step===4){
+    renderPreview(b);
+  }
+}
+
+function renderItemsStep(b){
+  const rows=doc.items.map((it,i)=>`
+    <tr>
+      <td style="text-align:center;font-weight:700;color:#aaa;font-size:12px">${String(i+1).padStart(2,'0')}</td>
+      <td><input type="text" id="it-desc-${i}" value="${it.desc}" placeholder="Descripción del ítem o servicio"></td>
+      <td style="width:80px"><input type="number" id="it-cant-${i}" value="${it.cant}" min="0.01" step="any" style="text-align:center"></td>
+      <td style="width:130px"><input type="number" id="it-precio-${i}" value="${it.precio}" placeholder="0.00" step="0.01"></td>
+      <td style="width:130px;font-weight:700;text-align:right;padding-right:10px;color:#555;font-size:13px">${it.total?parseFloat(it.total).toLocaleString('es-AR',{minimumFractionDigits:2}):'—'}</td>
+      <td style="width:40px;text-align:center">
+        <button onclick="removeItem(${i})" ${doc.items.length===1?'disabled':''} style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;padding:4px" title="Eliminar"><i class="ti ti-trash"></i></button>
+      </td>
+    </tr>`).join('');
+  const total=calcTotal();
+  b.innerHTML=`
+    <div class="field-card">
+      <div class="field-label">Ítems del presupuesto</div>
+      <div style="overflow-x:auto;margin-top:10px">
+        <table class="items-table">
+          <thead><tr>
+            <th style="width:36px">#</th>
+            <th>Descripción</th>
+            <th style="width:80px">Cant.</th>
+            <th style="width:130px">Precio unit.</th>
+            <th style="width:130px;text-align:right">Total</th>
+            <th style="width:40px"></th>
+          </tr></thead>
+          <tbody id="items-body">${rows}</tbody>
+        </table>
+      </div>
+      <button class="add-item-btn" onclick="addItem()"><i class="ti ti-plus"></i> Agregar ítem</button>
+      <div class="total-box">
+        <span class="total-label">Total ${doc.moneda}</span>
+        <span class="total-value">${doc.moneda} ${total.toLocaleString('es-AR',{minimumFractionDigits:2})}</span>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goPrev()"><i class="ti ti-arrow-left"></i> Anterior</button>
+      <button class="btn btn-primary" onclick="saveItemsAndNext()">Siguiente <i class="ti ti-arrow-right"></i></button>
+    </div>`;
+}
+
+function readItems(){
+  doc.items=doc.items.map((_,i)=>{
+    const desc=document.getElementById(`it-desc-${i}`)?.value||'';
+    const cant=document.getElementById(`it-cant-${i}`)?.value||'1';
+    const precio=document.getElementById(`it-precio-${i}`)?.value||'';
+    const total=(parseFloat(precio||0)*parseFloat(cant||0)).toFixed(2);
+    return{desc,cant,precio,total};
+  });
+}
+
+function saveItemsAndNext(){readItems();step++;renderStep();}
+function addItem(){readItems();doc.items.push({desc:'',cant:'1',precio:'',total:''});renderItemsStep(document.getElementById('wizard-body'));}
+function removeItem(i){readItems();doc.items.splice(i,1);renderItemsStep(document.getElementById('wizard-body'));}
+
+function goNext(){
+  if(step===0){doc.fecha=document.getElementById('f-fecha').value;doc.numero=document.getElementById('f-numero').value;doc.referencia=document.getElementById('f-ref').value;}
+  else if(step===1){doc.cliente=document.getElementById('f-cliente').value;doc.usuario=document.getElementById('f-usuario').value;doc.puesto=document.getElementById('f-puesto').value;doc.cuit_cli=document.getElementById('f-cuit').value;doc.sector=document.getElementById('f-sector').value;doc.domicilio_cli=document.getElementById('f-dom').value;}
+  else if(step===3){doc.moneda=document.getElementById('f-moneda').value;doc.forma_pago=document.getElementById('f-fpago').value;doc.entrega=document.getElementById('f-entrega').value;doc.fecha_entrega=document.getElementById('f-fentrega').value;doc.validez=document.getElementById('f-validez').value;}
+  step++;renderStep();
+}
+function goPrev(){step--;renderStep();}
+
+function renderPreview(b){
+  const total=calcTotal();
+  const totalWords=numToWords(total);
+  const banco=`${cfg.banco} - Titular: ${cfg.titular} - CUIT: ${cfg.cuit} / CBU: ${cfg.cbu} - Cta. cte. N.º: ${cfg.cuenta} - ALIAS: ${cfg.alias}`;
+  const itemRows=doc.items.map((it,i)=>`
+    <tr>
+      <td style="text-align:center;font-weight:700">${String(i+1).padStart(2,'0')}</td>
+      <td style="line-height:1.5">${it.desc}</td>
+      <td style="text-align:center">${it.cant}</td>
+      <td style="text-align:right">${doc.moneda} ${parseFloat(it.precio||0).toLocaleString('es-AR',{minimumFractionDigits:2})} + IVA</td>
+      <td style="text-align:right;font-weight:700">${doc.moneda} ${parseFloat(it.total||0).toLocaleString('es-AR',{minimumFractionDigits:2})} + IVA</td>
+    </tr>`).join('');
+
+  b.innerHTML=`
+    <div class="preview-wrap">
+      <div class="pdf-doc" id="pdf-content">
+        <div class="pdf-header">
+          <div>
+            <div class="pdf-logo-name">resaicar <span class="pdf-logo-dot">●</span></div>
+            <div class="pdf-logo-tag">CIENCIA <span class="pdf-logo-plus">+</span> TECNOLOGÍA</div>
+          </div>
+          <div class="pdf-company-info">
+            <strong style="color:#1a1a1a;font-size:11px">${cfg.nombre}</strong> — CUIT: ${cfg.cuit}<br>
+            TEL. ${cfg.tel} — Web: ${cfg.web}<br>
+            ${cfg.dir}<br>
+            ${cfg.email}
+          </div>
+        </div>
+
+        <div class="pdf-meta">
+          <div class="pdf-meta-cell"><div class="pdf-meta-label">Fecha</div><div class="pdf-meta-value">${fmtDate(doc.fecha)}</div></div>
+          <div class="pdf-meta-cell"><div class="pdf-meta-label">Cotización / Presupuesto N°</div><div class="pdf-meta-value">${doc.numero}</div></div>
+        </div>
+
+        <div class="pdf-client-box">
+          <div class="pdf-client-title">Datos del cliente</div>
+          <div class="pdf-client-grid">
+            <div><span style="color:#888">Cliente:</span> <strong>${doc.cliente}</strong></div>
+            <div><span style="color:#888">Usuario:</span> ${doc.usuario} &nbsp;·&nbsp; <span style="color:#888">Puesto:</span> ${doc.puesto}</div>
+            <div><span style="color:#888">CUIT:</span> ${doc.cuit_cli}</div>
+            <div><span style="color:#888">Sector:</span> ${doc.sector}</div>
+            <div style="grid-column:1/-1"><span style="color:#888">Domicilio:</span> ${doc.domicilio_cli}</div>
+          </div>
+        </div>
+
+        <p style="font-size:11px;margin-bottom:8px;color:#666">A continuación, tenemos el agrado de hacerles llegar el siguiente presupuesto:</p>
+        <p style="font-size:12px;margin-bottom:14px"><strong>Referencia:</strong> ${doc.referencia}</p>
+
+        <table class="pdf-table">
+          <thead><tr>
+            <th style="width:44px">ITEM</th>
+            <th>DESCRIPCIÓN</th>
+            <th style="width:60px;text-align:center">CANT.</th>
+            <th style="width:120px;text-align:right">PRECIO UNIT.</th>
+            <th style="width:120px;text-align:right">TOTAL</th>
+          </tr></thead>
+          <tbody>${itemRows}</tbody>
+        </table>
+
+        <div class="pdf-cond-block">
+          <div class="pdf-cond-title">Condiciones generales</div>
+          <div class="pdf-cond-row"><div class="pdf-cond-label">Precio Total</div><div class="pdf-cond-value"><strong>${doc.moneda} ${total.toLocaleString('es-AR',{minimumFractionDigits:2})} + IVA</strong></div></div>
+          <div class="pdf-cond-row"><div class="pdf-cond-label">Monto en letras</div><div class="pdf-cond-value">${totalWords}</div></div>
+          <div class="pdf-cond-row"><div class="pdf-cond-label">Moneda / Tipo de Cambio</div><div class="pdf-cond-value">${doc.moneda} — dólar BNA vendedor del día anterior a la fecha de pago</div></div>
+          <div class="pdf-cond-row"><div class="pdf-cond-label">Forma de Pago</div><div class="pdf-cond-value">${doc.forma_pago}</div></div>
+          <div class="pdf-cond-row"><div class="pdf-cond-label">Datos Bancarios</div><div class="pdf-cond-value">${banco}</div></div>
+          <div class="pdf-cond-row"><div class="pdf-cond-label">Lugar de Entrega</div><div class="pdf-cond-value">${doc.entrega}</div></div>
+          <div class="pdf-cond-row"><div class="pdf-cond-label">Fecha de Entrega</div><div class="pdf-cond-value">${doc.fecha_entrega}</div></div>
+          <div class="pdf-cond-row"><div class="pdf-cond-label">Validez de la Oferta</div><div class="pdf-cond-value">${doc.validez}</div></div>
+        </div>
+
+        <div class="pdf-notes">
+          <div class="pdf-notes-title">Observaciones / Comentarios</div>
+          <div style="margin-top:5px">${cfg.notas.replace(/\n/g,'<br>')}</div>
+        </div>
+
+        <div class="pdf-footer">
+          <div>${cfg.dir}</div>
+          <div>Tel: ${cfg.tel} — ${cfg.email}</div>
+        </div>
+        <div class="pdf-contact">
+          <strong>CONTACTO</strong>
+          <span>${cfg.cnt_nombre} — ${cfg.cnt_dpto} — ${cfg.cnt_email}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row" style="margin-top:18px">
+      <button class="btn btn-secondary" onclick="goPrev()"><i class="ti ti-arrow-left"></i> Editar</button>
+      <button class="btn btn-primary" onclick="guardarDoc()"><i class="ti ti-device-floppy"></i> Guardar en historial</button>
+      <button class="btn btn-dark" onclick="imprimirDoc()"><i class="ti ti-printer"></i> Imprimir / PDF</button>
+    </div>`;
+}
+
+function imprimirDoc(){
+  const content=document.getElementById('pdf-content').innerHTML;
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+    <title>Presupuesto ${doc.numero} — ${doc.cliente}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{font-family:'Raleway',sans-serif;background:#e8e8e8;padding:20px}
+      .pdf-doc{background:white;max-width:780px;margin:0 auto;padding:36px 40px;color:#1a1a1a;font-size:12px}
+      .pdf-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;padding-bottom:16px;border-bottom:2.5px solid #23B24B}
+      .pdf-logo-name{font-size:30px;font-weight:300;color:#1a1a1a;letter-spacing:-1px;line-height:1}
+      .pdf-logo-dot{color:#23B24B;font-size:12px}
+      .pdf-logo-tag{font-size:7.5px;letter-spacing:3px;color:#777;margin-top:4px}
+      .pdf-logo-plus{color:#23B24B;font-size:9px;font-weight:700}
+      .pdf-company-info{text-align:right;font-size:10px;color:#666;line-height:1.7}
+      .pdf-meta{display:grid;grid-template-columns:1fr 1fr;margin-bottom:16px;border:1px solid #ddd;border-radius:4px;overflow:hidden}
+      .pdf-meta-cell{padding:9px 14px;background:#fafafa;border-right:1px solid #ddd;border-bottom:1px solid #ddd}
+      .pdf-meta-cell:nth-child(even){border-right:none}
+      .pdf-meta-cell:nth-last-child(-n+2){border-bottom:none}
+      .pdf-meta-label{font-size:8.5px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:0.07em}
+      .pdf-meta-value{font-size:12px;font-weight:700;color:#1a1a1a;margin-top:2px}
+      .pdf-client-box{background:#f0faf4;border:1px solid #b8e0c8;border-radius:4px;padding:12px 16px;margin-bottom:16px}
+      .pdf-client-title{font-size:8.5px;font-weight:700;color:#1a8a39;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+      .pdf-client-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;font-size:11px}
+      .pdf-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:11px}
+      .pdf-table th{background:#1a1a1a;color:white;padding:8px 10px;text-align:left;font-weight:600;font-size:9.5px;text-transform:uppercase;letter-spacing:0.07em}
+      .pdf-table td{padding:8px 10px;border-bottom:1px solid #eee;vertical-align:top;line-height:1.5}
+      .pdf-table tr:nth-child(even) td{background:#fafafa}
+      .pdf-cond-block{border:1px solid #ddd;border-radius:4px;overflow:hidden;margin-bottom:14px}
+      .pdf-cond-title{background:#1a1a1a;color:white;padding:7px 14px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em}
+      .pdf-cond-row{display:flex;border-bottom:0.5px solid #eee}
+      .pdf-cond-row:last-child{border-bottom:none}
+      .pdf-cond-label{background:#f5f5f5;padding:7px 12px;font-weight:600;color:#666;width:220px;flex-shrink:0;font-size:10px}
+      .pdf-cond-value{padding:7px 12px;color:#1a1a1a;font-size:10px}
+      .pdf-notes{background:#f9f9f9;border:1px solid #ddd;border-radius:4px;padding:10px 14px;font-size:10px;color:#666;margin-bottom:14px;line-height:1.6}
+      .pdf-notes-title{font-weight:700;color:#444;margin-bottom:5px;font-size:9.5px;text-transform:uppercase;letter-spacing:0.07em}
+      .pdf-footer{border-top:1px solid #23B24B;padding-top:10px;display:flex;justify-content:space-between;font-size:10px;color:#666}
+      .pdf-contact{margin-top:10px;padding:7px 12px;background:#f0faf4;border:1px solid #b8e0c8;border-radius:4px;font-size:10px;display:flex;justify-content:space-between;align-items:center}
+      .print-btn{display:block;margin:20px auto;padding:12px 32px;background:#23B24B;color:white;border:none;border-radius:8px;font-family:'Raleway',sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+      @media print{body{background:white;padding:0}.pdf-doc{max-width:none;padding:20px}.print-btn{display:none}}
+    </style></head>
+    <body>
+      <div class="pdf-doc">${content}</div>
+      <button class="print-btn" onclick="window.print()">🖨 Imprimir / Guardar como PDF</button>
+    </body></html>`);
+  w.document.close();
+}
+
+function guardarDoc(){
+  const total=calcTotal();
+  const entry={
+    id:Date.now(),
+    numero:doc.numero,
+    cliente:doc.cliente,
+    fecha:doc.fecha,
+    total,
+    moneda:doc.moneda,
+    tipo:'Presupuesto',
+    snapshot:JSON.parse(JSON.stringify(doc))
+  };
+  history.unshift(entry);
+  localStorage.setItem('resaicar_history',JSON.stringify(history));
+  alert(`✓ Presupuesto ${doc.numero} guardado en historial`);
+  doc=defaultDoc();
+  step=0;renderStep();
+}
+
+function renderHistory(){
+  const c=document.getElementById('history-container');
+  if(!history.length){
+    c.innerHTML=`<div class="empty"><i class="ti ti-file-off"></i><div style="font-size:15px">Todavía no hay documentos guardados</div><div style="margin-top:8px;font-size:13px">Creá tu primer presupuesto desde "Nuevo"</div></div>`;
+    return;
+  }
+  c.innerHTML=`<div class="history-list">${history.map(h=>`
+    <div class="history-item">
+      <div style="flex:1">
+        <div class="hist-nr">${h.numero}<span class="badge">${h.tipo}</span></div>
+        <div class="hist-client">${h.cliente}</div>
+        <div class="hist-date">${fmtDate(h.fecha)}</div>
+      </div>
+      <div class="hist-total">${h.moneda} ${h.total.toLocaleString('es-AR',{minimumFractionDigits:2})}</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary btn-sm" onclick="verDoc(${h.id})"><i class="ti ti-eye"></i> Ver</button>
+        <button class="btn btn-sm" style="background:#fff0f0;color:#c0392b;border:1px solid #f0c0c0" onclick="borrarDoc(${h.id})"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function verDoc(id){
+  const h=history.find(x=>x.id===id);
+  if(!h) return;
+  doc=JSON.parse(JSON.stringify(h.snapshot));
+  step=4;showTab('nuevo');renderStep();
+}
+
+function borrarDoc(id){
+  if(!confirm('¿Eliminar este documento del historial?')) return;
+  history=history.filter(x=>x.id!==id);
+  localStorage.setItem('resaicar_history',JSON.stringify(history));
+  renderHistory();
+}
+
+renderStep();
+</script>
+</body>
+</html>
